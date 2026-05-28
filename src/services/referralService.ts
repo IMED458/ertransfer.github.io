@@ -7,6 +7,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  deleteField,
   type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "../firebase";
@@ -52,7 +53,7 @@ export async function updateReferralStatus(
   emergencyComment?: string
 ): Promise<void> {
   const ref = doc(db, COLLECTION, id);
-  const patch: Partial<Referral> = {
+  const patch: Record<string, unknown> = {
     status,
     updatedAt: new Date().toISOString(),
   };
@@ -61,8 +62,11 @@ export async function updateReferralStatus(
   }
   if (status === "მოვიდა - დასრულებულია") {
     patch.completedAt = new Date().toISOString();
+  } else if (status === "აქტიური") {
+    // undo — remove completedAt when going back
+    patch.completedAt = deleteField();
   }
-  await updateDoc(ref, patch as Record<string, unknown>);
+  await updateDoc(ref, patch);
 }
 
 export async function deleteReferral(id: string): Promise<void> {
