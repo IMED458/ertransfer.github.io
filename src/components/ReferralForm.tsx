@@ -12,6 +12,7 @@ interface ReferralFormProps {
     diagnosis?: string;
     complaints?: string;
   }) => Promise<boolean>;
+  onClose?: () => void;
 }
 
 const DEPARTMENTS = [
@@ -156,7 +157,7 @@ function DepartmentSelect({
   );
 }
 
-export default function ReferralForm({ onAddReferral }: ReferralFormProps) {
+export default function ReferralForm({ onAddReferral, onClose }: ReferralFormProps) {
   const [doctorName, setDoctorName] = useState("");
   const [patientName, setPatientName] = useState("");
   const [department, setDepartment] = useState("");
@@ -206,16 +207,22 @@ export default function ReferralForm({ onAddReferral }: ReferralFormProps) {
     setIsSubmitting(false);
 
     if (success) {
-      setSuccessMsg("მიმართვა წარმატებით დაემატა");
-      setPatientName("");
-      setDepartment("");
-      setBedLocation("");
-      setRequestedTests("");
-      setDoctorNote("");
-      setDiagnosis("");
-      setComplaints("");
-      setErrors({});
-      setTimeout(() => setSuccessMsg(""), 4000);
+      if (onClose) {
+        // In modal mode: close immediately after submit
+        onClose();
+      } else {
+        // Standalone mode: show success message and reset form
+        setSuccessMsg("მიმართვა წარმატებით დაემატა");
+        setPatientName("");
+        setDepartment("");
+        setBedLocation("");
+        setRequestedTests("");
+        setDoctorNote("");
+        setDiagnosis("");
+        setComplaints("");
+        setErrors({});
+        setTimeout(() => setSuccessMsg(""), 4000);
+      }
     }
   };
 
